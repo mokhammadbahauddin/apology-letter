@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* === RESET & BASE === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100dvh;
+      overflow: hidden;
+      font-family: 'Caveat', cursive;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    body {
+      background: linear-gradient(135deg, #FFE4EC 0%, #E8D5F5 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative;
+      transition: background 1.5s ease;
+      padding: 10px;
+    }
+    body.victory-bg {
+      background: linear-gradient(135deg, #FFE4B5 0%, #FFB6C1 100%);
+    }
+    body.shake {
+      animation: screenShake 0.2s ease;
+    }
+
+    /* === SCREEN SHAKE === */
+    @keyframes screenShake {
+      0% { transform: translate(0,0); }
+      20% { transform: translate(2px, -2px); }
+      40% { transform: translate(-2px, 2px); }
+      60% { transform: translate(2px, 1px); }
+      80% { transform: translate(-1px, -2px); }
+      100% { transform: translate(0,0); }
+    }
+
+    /* === INTRO OVERLAY === */
+    #intro-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: #1a1a2e;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+    #intro-overlay.fade-out {
+      opacity: 0; pointer-events: none;
+    }
+    #intro-text {
+      color: #fff;
+      font-size: clamp(24px, 6vw, 36px);
+      letter-spacing: 2px;
+      position: relative;
+    }
+    #intro-text .cursor {
+      display: inline-block;
+      width: 2px; height: 1em;
+      background: #fff;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: cursorBlink 0.6s step-end infinite;
+    }
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* === MAIN CONTENT === */
+    #main-content {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
+      width: 100%; height: 100dvh;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      position: relative;
+      z-index: 1;
+    }
+    #main-content.visible { opacity: 1; }
+
+    /* === GLASSMORPHIC CARD === */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px) saturate(120%);
+      -webkit-backdrop-filter: blur(12px) saturate(120%);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      border-radius: 28px;
+      padding: 1.8rem 1.5rem;
+      box-shadow: 0 12px 32px rgba(232, 213, 245, 0.25), 0 4px 12px rgba(93, 64, 55, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 92%;
+      max-width: 360px;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* === QUESTION TEXT === */
+    #question-text {
+      font-size: clamp(22px, 6vw, 32px);
+      font-weight: 700;
+      color: #5D4037;
+      text-align: center;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      line-height: 1.3;
+    }
+    #question-text.visible { opacity: 1; transform: translateY(0); }
+
+    /* === BUTTONS === */
+    #button-container {
+      display: flex; gap: 1.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 10;
+    }
+    .btn-wrapper {
+      min-width: 100px;
+      min-height: 48px;
+      position: relative;
+    }
+    .btn {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(20px, 5vw, 26px);
+      font-weight: 700;
+      color: #fff;
+      border: none; border-radius: 50px;
+      padding: 0.7rem 2.2rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.5s ease, box-shadow 0.3s ease;
+      min-width: 100px;
+      min-height: 48px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #btn-ya {
+      background: linear-gradient(135deg, #FF8A9B, #FF6B8A);
+      position: fixed;
+      z-index: 50;
+      opacity: 1;
+      transform: translateX(-60vw);
+      transition: left 0.01s, top 0.01s, transform 0.2s ease, opacity 0.5s ease;
+    }
+    #btn-ya.slide-in {
+      position: relative;
+      transform: translateX(0);
+      left: auto !important; top: auto !important;
+    }
+    #btn-ya.dodging {
+      position: fixed;
+    }
+    #btn-ya.hidden {
+      opacity: 0; pointer-events: none; transform: scale(0.3);
+    }
+    #btn-tidak {
+      background: linear-gradient(135deg, #7DCEA0, #5DBE8A);
+      transform: translateX(60vw);
+      animation: none;
+    }
+    #btn-tidak.slide-in {
+      transform: translateX(0);
+    }
+    #btn-tidak.glow {
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 8px rgba(125,206,160,0.4), 0 0 20px rgba(125,206,160,0.2); }
+      50% { box-shadow: 0 0 15px rgba(125,206,160,0.6), 0 0 40px rgba(125,206,160,0.35); }
+    }
+    #btn-tidak.glow-intense {
+      animation: pulseGlowIntense 1.2s ease-in-out infinite;
+    }
+    @keyframes pulseGlowIntense {
+      0%, 100% { box-shadow: 0 0 12px rgba(125,206,160,0.6), 0 0 30px rgba(125,206,160,0.4); }
+      50% { box-shadow: 0 0 25px rgba(125,206,160,0.8), 0 0 60px rgba(125,206,160,0.5); }
+    }
+    .btn:active { transform: scale(0.95); }
+
+    /* === SPEECH BUBBLE === */
+    #speech-bubble {
+      background: #fff;
+      border-radius: 18px;
+      padding: 0.6rem 1rem;
+      font-size: clamp(16px, 4vw, 20px);
+      color: #5D4037;
+      position: relative;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      opacity: 0; transform: scale(0.5);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      text-align: center;
+      max-width: 80vw;
+    }
+    #speech-bubble.visible { opacity: 1; transform: scale(1); }
+    #speech-bubble::after {
+      content: '';
+      position: absolute; bottom: -8px; left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid #fff;
+    }
+
+    /* === PIXEL ART CAT === */
+    #cat-container {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 0.3rem;
+      cursor: pointer;
+      transform: translateY(100vh);
+      transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #cat-container.walk-in {
+      transform: translateY(0);
+    }
+    #cat-container.bounce {
+      animation: catBounce 3s ease-in-out infinite;
+    }
+    #cat-container.cat-ecstatic {
+      transition: none !important;
+      animation: catDance 0.5s ease-in-out infinite;
+    }
+    #cat-container.tremble {
+      transition: none !important;
+      animation: catTremble 0.15s ease-in-out infinite;
+    }
+    @keyframes catBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes catDance {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-12px) rotate(-5deg); }
+      50% { transform: translateY(-2px) rotate(0deg); }
+      75% { transform: translateY(-12px) rotate(5deg); }
+    }
+    @keyframes catTremble {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-1px); }
+      75% { transform: translateX(1px); }
+    }
+
+    #pixel-cat {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      grid-template-rows: repeat(24, 1fr);
+      width: clamp(160px, 42vw, 250px);
+      aspect-ratio: 1 / 1;
+    }
+    .px {
+      aspect-ratio: 1;
+      border-radius: 1px;
+    }
+    /* Cat color classes matching the reference image */
+    .c-clear { background: transparent; }
+    .c-outline { background: #3a2d2d; }
+    .c-orange { background: #f3a863; }
+    .c-dark-orange { background: #e49048; }
+    .c-white { background: #ece4db; }
+    .c-ear-pink { background: #e99d85; }
+    .c-eye-black { background: #3a2d2d; }
+    .c-eye-white { background: #fff; }
+    .c-nose { background: #e99d85; }
+    .c-tear { background: #89CFF0; }
+    .c-heart-eye { background: #FF6B8A; }
+    .c-bliss { background: #3a2d2d; }
+    .c-blush { background: #FFA8A8; }
+
+    /* === FLOATING HEARTS === */
+    .floating-heart {
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+      animation: floatUp var(--dur) linear infinite;
+      opacity: var(--opa);
+      font-size: var(--size);
+      left: var(--left);
+      bottom: -30px;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) translateX(0); opacity: var(--opa); }
+      25% { transform: translateY(-25vh) translateX(10px); }
+      50% { transform: translateY(-50vh) translateX(-8px); }
+      75% { transform: translateY(-75vh) translateX(12px); }
+      100% { transform: translateY(-110vh) translateX(0); opacity: 0; }
+    }
+
+    /* === TWINKLING STARS === */
+    .twinkle-star {
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out infinite;
+      animation-delay: var(--delay);
+      background: var(--color);
+      width: var(--size); height: var(--size);
+      top: var(--top); left: var(--left);
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* === PAW PRINTS === */
+    .paw-print {
+      position: fixed;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.5;
+      animation: pawFade 2.5s ease forwards;
+    }
+    @keyframes pawFade {
+      0% { opacity: 0.5; }
+      100% { opacity: 0; }
+    }
+
+    /* === VICTORY ELEMENTS === */
+    #white-flash {
+      position: fixed; inset: 0; z-index: 90;
+      background: #fff;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.1s ease;
+    }
+    #white-flash.flash { opacity: 0.9; }
+
+    #victory-text {
+      font-size: clamp(22px, 6vw, 30px);
+      font-weight: 700;
+      color: #5D4037;
+      text-align: center;
+      min-height: 2.5em;
+      line-height: 1.4;
+      transition: opacity 0.5s ease;
+      width: 100%;
+    }
+    #personal-message {
+      font-size: clamp(18px, 5vw, 24px);
+      color: #5D4037;
+      font-style: italic;
+      text-align: center;
+      margin-top: 1.5rem;
+      line-height: 1.6;
+      transition: opacity 1s ease;
+      width: 100%;
+    }
+
+    /* === EMOJI EXPLOSION === */
+    .emoji-burst {
+      position: fixed;
+      font-size: 28px;
+      z-index: 80;
+      pointer-events: none;
+      animation: emojiBurst 1.2s ease-out forwards;
+    }
+    @keyframes emojiBurst {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0.3); opacity: 0; }
+    }
+
+    /* === SAD EMOJI FLOAT === */
+    .sad-emoji-float {
+      position: fixed;
+      font-size: 24px;
+      z-index: 60;
+      pointer-events: none;
+      animation: sadFloat 0.8s ease-out forwards;
+    }
+    @keyframes sadFloat {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-60px); opacity: 0; }
+    }
+
+    /* === HEART RAIN === */
+    .heart-rain {
+      position: fixed;
+      top: -30px;
+      z-index: 4;
+      pointer-events: none;
+      animation: heartFall var(--dur) linear infinite;
+      font-size: var(--size);
+      left: var(--left);
+      animation-delay: var(--delay);
+    }
+    @keyframes heartFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(var(--rot)); opacity: 0.6; }
+    }
+
+    /* === PET HEARTS === */
+    .pet-heart {
+      position: absolute;
+      font-size: 14px;
+      pointer-events: none;
+      z-index: 20;
+      animation: petHeartFloat 0.8s ease-out forwards;
+    }
+    @keyframes petHeartFloat {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-40px) scale(0.5); opacity: 0; }
+    }
+
+    /* === SPARKLE PARTICLES === */
+    .sparkle {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: #FFD700;
+      z-index: 20;
+      pointer-events: none;
+      border-radius: 50%;
+      animation: sparkleAnim 0.6s ease-out forwards;
+    }
+    @keyframes sparkleAnim {
+      0% { transform: scale(0) translate(0,0); opacity: 1; }
+      50% { transform: scale(1.5) translate(var(--sx), var(--sy)); opacity: 0.8; }
+      100% { transform: scale(0) translate(var(--sx2), var(--sy2)); opacity: 0; }
+    }
+
+    /* === REPLAY === */
+    #replay-btn {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%; transform: translateX(-50%);
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 4vw, 20px);
+      color: #5D4037;
+      background: none; border: none;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      z-index: 60;
+      pointer-events: none;
+    }
+    #replay-btn.visible { opacity: 0.6; pointer-events: auto; }
+    #replay-btn:hover { opacity: 1; }
+
+    /* === MUSIC NOTE FLOATS (petting) === */
+    .music-note {
+      position: absolute;
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 20;
+      animation: noteFloat 1s ease-out forwards;
+    }
+    @keyframes noteFloat {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-50px) rotate(20deg); opacity: 0; }
+    }
+
+    /* === RESPONSIVE === */
+    @media (min-width: 500px) {
+      #pixel-cat { width: clamp(200px, 30vw, 280px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INTRO OVERLAY -->
+  <div id="intro-overlay">
+    <div id="intro-text"><span id="intro-typed"></span><span class="cursor"></span></div>
+  </div>
+
+  <!-- WHITE FLASH -->
+  <div id="white-flash"></div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main-content">
+    <div class="glass-card" id="card">
+      <div id="question-text">kamu masih marah ga<br>sama aku?</div>
+
+      <!-- Victory section inside card (initially hidden) -->
+      <div id="victory-text" style="display: none; opacity: 0;"></div>
+
+      <div id="button-container">
+        <div class="btn-wrapper" id="ya-wrapper">
+          <button class="btn" id="btn-ya">Ya</button>
+        </div>
+        <div class="btn-wrapper">
+          <button class="btn" id="btn-tidak">Tidak</button>
+        </div>
+      </div>
+
+      <div id="speech-bubble">jangan marah dong... 🥺</div>
+
+      <div id="cat-container">
+        <div id="pixel-cat"></div>
+      </div>
+
+      <!-- Personal message inside card (initially hidden) -->
+      <div id="personal-message" style="display: none; opacity: 0;"></div>
+    </div>
+  </div>
+
+  <!-- REPLAY -->
+  <button id="replay-btn">tap to replay 🔄</button>
+
+  <script>
+    // ============================================================
+    //  STATE
+    // ============================================================
+    let dodgeCount = 0;
+    let gamePhase = 'intro'; // intro | playing | victory
+    let audioCtx = null;
+    let audioInitialized = false;
+    let blinkInterval = null;
+    let isPetting = false;
+    let purrOsc = null;
+    let musicBoxInterval = null;
+
+    // ============================================================
+    //  PIXEL CAT DATA  (24 cols x 24 rows)
+    //  Perfect replica of the reference cute sitting orange/white cat
+    // ============================================================
+    const CAT_MAP = [
+      '........................',
+      '........................',
+      '....OO............OO....',
+      '...OooO..........OooO...',
+      '...OppooO......OooppO...',
+      '..OppppoOOOOOOOOppppoO..',
+      '..OooppooooooooooppooO..',
+      '.OooooooooooooooooooooO.',
+      '.OooooooooowwwooooooooO.',
+      'OooooooooowwwowwOooooooO',
+      'OoooooOOwwEEwwEEwwOOoooO',
+      'OoooooooooEEwpEEwwoooooO',
+      'OoooooOOwwwwOwOwwwwOOooO',
+      '.OooooooooowwwwwwoooooO.',
+      '..OooooooooowwwwoooooO..',
+      '...OOOOOOOOwwwwOOOOOO...',
+      '....OoooooowwwwwoOwwO...',
+      '....OoooooowwwwwoOooO...',
+      '...OoooooowwwwwwwOooO...',
+      '...OowwwowwwwwwwwoOooO..',
+      '..OowwwwwwwwwwwwwOooO...',
+      '..OowwOwwOwwwOwwOwOO....',
+      '...OOO..OO...OO..OO.....',
+      '........................'
+    ];
+
+    const COLOR_MAP = {
+      '.': 'c-clear',
+      'O': 'c-outline',
+      'o': 'c-orange',
+      'd': 'c-dark-orange',
+      'w': 'c-white',
+      'p': 'c-ear-pink',
+      'E': 'c-eye-black',
+      'e': 'c-eye-white',
+      'k': 'c-blush'
+    };
+
+    // Track special pixels for state changes
+    const eyePixels = [];
+    const earTopPixels = [];
+
+    function buildCat() {
+      const grid = document.getElementById('pixel-cat');
+      grid.innerHTML = '';
+      eyePixels.length = 0;
+      earTopPixels.length = 0;
+
+      for (let r = 0; r < 24; r++) {
+        const rowStr = CAT_MAP[r];
+        for (let c = 0; c < 24; c++) {
+          const ch = c < rowStr.length ? rowStr[c] : '.';
+          const div = document.createElement('div');
+          const cls = COLOR_MAP[ch] || 'c-clear';
+          div.className = 'px ' + cls;
+          div.dataset.row = r;
+          div.dataset.col = c;
+          grid.appendChild(div);
+
+          // Track eyes
+          if (ch === 'E') {
+            eyePixels.push({ el: div, row: r, col: c, origClass: cls, char: ch });
+          }
+          // Track ear tops for drooping
+          if (r <= 3 && ch !== '.') {
+            earTopPixels.push({ el: div, row: r, col: c, origClass: cls });
+          }
+        }
+      }
+    }
+
+    // ============================================================
+    //  EYE INTERACTION STATE CONTROLLER
+    //  Controls retro pixel eye changes programmatically
+    // ============================================================
+    function setEyeState(state) {
+      eyePixels.forEach(p => {
+        if (state === 'default') {
+          p.el.className = 'px ' + p.origClass;
+        } else if (state === 'blink') {
+          p.el.className = 'px c-white';
+        } else if (state === 'bliss') {
+          if (p.row === 10) {
+            p.el.className = 'px c-white';
+          } else {
+            p.el.className = 'px c-outline';
+          }
+        } else if (state === 'heart') {
+          p.el.className = 'px c-heart-eye';
+        }
+      });
+    }
+
+    // ============================================================
+    //  AUDIO ENGINE
+    // ============================================================
+    function initAudio() {
+      if (audioInitialized) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioInitialized = true;
+    }
+
+    function playTone(freq, duration, type = 'sine', vol = 0.12, detune = 0) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      
+      const osc1 = audioCtx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.value = freq;
+      osc1.detune.value = detune;
+      
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'triangle';
+      osc2.frequency.value = freq * 2;
+      osc2.detune.value = detune;
+      
+      const gain1 = audioCtx.createGain();
+      const gain2 = audioCtx.createGain();
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1600, now);
+      filter.Q.value = 3;
+      
+      gain1.gain.setValueAtTime(vol, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      
+      gain2.gain.setValueAtTime(vol * 0.25, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.35);
+      
+      osc1.connect(gain1);
+      osc2.connect(gain2);
+      gain1.connect(filter);
+      gain2.connect(filter);
+      filter.connect(audioCtx.destination);
+      
+      osc1.start();
+      osc2.start();
+      osc1.stop(now + duration);
+      osc2.stop(now + duration);
+
+      // Echo effect (Victory only)
+      if (gamePhase === 'victory' && vol > 0.02) {
+        setTimeout(() => {
+          if (!audioCtx) return;
+          const echoOsc = audioCtx.createOscillator();
+          const echoGain = audioCtx.createGain();
+          const echoFilter = audioCtx.createBiquadFilter();
+
+          echoOsc.type = 'sine';
+          echoOsc.frequency.value = freq;
+          echoFilter.type = 'lowpass';
+          echoFilter.frequency.value = 1200;
+
+          echoGain.gain.setValueAtTime(vol * 0.4, audioCtx.currentTime);
+          echoGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration * 0.8);
+
+          echoOsc.connect(echoFilter);
+          echoFilter.connect(echoGain);
+          echoGain.connect(audioCtx.destination);
+
+          echoOsc.start();
+          echoOsc.stop(audioCtx.currentTime + duration * 0.8);
+        }, 180);
+      }
+    }
+
+    function playKeyClick() {
+      if (!audioCtx) return;
+      const bufSize = audioCtx.sampleRate * 0.03;
+      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.08;
+      const src = audioCtx.createBufferSource();
+      const gain = audioCtx.createGain();
+      src.buffer = buf;
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+      src.connect(gain);
+      gain.connect(audioCtx.destination);
+      src.start();
+    }
+
+    function playChime() {
+      if (!audioCtx) return;
+      const notes = [523, 659, 784, 1047];
+      notes.forEach((f, i) => {
+        setTimeout(() => playTone(f, 0.6, 'sine', 0.06), i * 150);
+      });
+    }
+
+    function playFootstep() {
+      playTone(800 + Math.random() * 200, 0.05, 'sine', 0.02);
+    }
+
+    function playPop() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.12);
+    }
+
+    function playBoing(pitch = 1) {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300 * pitch, now);
+      osc.frequency.exponentialRampToValueAtTime(1000 * pitch, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(500 * pitch, now + 0.25);
+      
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(now + 0.25);
+    }
+
+    function playSadNotes() {
+      if (!audioCtx) return;
+      const notes = [392, 349, 311];
+      notes.forEach((f, i) => {
+        setTimeout(() => playTone(f, 0.5, 'sine', 0.06), i * 200);
+      });
+    }
+
+    function playFanfare() {
+      if (!audioCtx) return;
+      const notes = [523, 659, 784, 1047];
+      notes.forEach((f, i) => {
+        setTimeout(() => {
+          playTone(f, 1.0, 'sine', 0.08);
+          playTone(f * 1.5, 0.8, 'sine', 0.03);
+        }, i * 120);
+      });
+      setTimeout(() => {
+        playTone(1047, 1.8, 'sine', 0.12);
+        playTone(1318, 1.5, 'sine', 0.06);
+        playTone(1568, 1.5, 'sine', 0.06);
+      }, 500);
+    }
+
+    function playSparkle() {
+      if (!audioCtx) return;
+      const freq = 2000 + Math.random() * 2000;
+      playTone(freq, 0.12, 'sine', 0.04);
+    }
+
+    function playCuteChirp() {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.exponentialRampToValueAtTime(1800, now + 0.08);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(now + 0.1);
+    }
+
+    function startPurr() {
+      if (!audioCtx || purrOsc) return;
+      purrOsc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+
+      purrOsc.type = 'sawtooth';
+      purrOsc.frequency.value = 28;
+      lfo.type = 'sine';
+      lfo.frequency.value = 22;
+      lfoGain.gain.value = 15;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(purrOsc.frequency);
+
+      gain.gain.value = 0.06;
+      purrOsc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      purrOsc.start();
+      lfo.start();
+      purrOsc._lfo = lfo;
+      purrOsc._gain = gain;
+    }
+
+    function stopPurr() {
+      if (purrOsc) {
+        try {
+          purrOsc._gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+          purrOsc.stop(audioCtx.currentTime + 0.25);
+          purrOsc._lfo.stop(audioCtx.currentTime + 0.25);
+        } catch(e) {}
+        purrOsc = null;
+      }
+    }
+
+    let musicBoxPlaying = false;
+    function playMusicBox() {
+      if (!audioCtx || musicBoxPlaying) return;
+      musicBoxPlaying = true;
+
+      // Roots for low bouncy bass (C3, A2, F2, G2)
+      const roots = [130.81, 110.00, 87.31, 98.00];
+      const chords = [
+        [261.63, 329.63, 392.00, 523.25], // C Maj
+        [220.00, 261.63, 329.63, 440.00], // A Min
+        [174.61, 220.00, 261.63, 349.23], // F Maj
+        [196.00, 246.94, 293.66, 392.00]  // G Maj
+      ];
+
+      // Catchy, happy victory melody notes
+      // Steps 0-7: Heroic stage clear fanfare sweep
+      // Steps 8-39: Upbeat melody loop
+      const melody = [
+        // Fanfare Intro (0-7)
+        523.25, 659.25, 784.00, 1046.50, 784.00, 1046.50, 1318.51, 1567.98,
+        
+        // Loop - C Major (8-15)
+        1046.50, 0, 784.00, 0, 880.00, 987.77, 1046.50, 0,
+        // Loop - A Minor (16-23)
+        1318.51, 0, 1046.50, 0, 1174.66, 1318.51, 1396.91, 0,
+        // Loop - F Major (24-31)
+        1760.00, 0, 1396.91, 0, 1046.50, 0, 880.00, 0,
+        // Loop - G Major (32-39)
+        987.77, 0, 1174.66, 0, 1567.98, 0, 2093.00, 2093.00
+      ];
+
+      let step = 0;
+      musicBoxInterval = setInterval(() => {
+        if (!audioCtx) { clearInterval(musicBoxInterval); return; }
+        
+        // Fanfare opening introduction sweep
+        if (step < 8) {
+          playTone(melody[step], 0.25, 'sine', 0.12);
+          playTone(melody[step] * 1.004, 0.25, 'sine', 0.05); // chorus
+          
+          if (step === 7) {
+            playSparkle();
+          }
+          step++;
+          return;
+        }
+
+        // Main Loop phase (offset step by 8)
+        const loopStep = (step - 8) % 32;
+        const chordIdx = Math.floor(loopStep / 8);
+        const noteIdx = loopStep % 4;
+
+        // 1. Upbeat Bouncy Bassline (triangle wave, alternating root & fifth)
+        if (loopStep % 2 === 0) {
+          const isFifth = (loopStep % 4 === 2);
+          const baseRoot = roots[chordIdx];
+          const bassFreq = isFifth ? baseRoot * 1.5 : baseRoot;
+          playTone(bassFreq, 0.25, 'triangle', 0.08);
+        }
+
+        // 2. Fast Arpeggio Accompaniment (every step)
+        const arpFreq = chords[chordIdx][noteIdx];
+        playTone(arpFreq, 0.15, 'sine', 0.04);
+
+        // 3. Bright Upbeat Melody (sine with chorus detuning)
+        const melodyFreq = melody[8 + loopStep];
+        if (melodyFreq > 0) {
+          playTone(melodyFreq, 0.35, 'sine', 0.08);
+          playTone(melodyFreq * 1.004, 0.35, 'sine', 0.04);
+
+          // Add sparkling high chime on peaks
+          if (melodyFreq >= 1000) {
+            playSparkle();
+          }
+        }
+
+        step++;
+      }, 150); // 150ms steps = bouncy 100 BPM
+    }
+
+    function stopMusicBox() {
+      if (musicBoxInterval) { clearInterval(musicBoxInterval); musicBoxInterval = null; }
+      musicBoxPlaying = false;
+    }
+
+    // ============================================================
+    //  CAT STATE MANAGEMENT
+    // ============================================================
+    const speechTexts = [
+      'jangan marah dong... 🥺',
+      'please... 😿',
+      'please... 😿',
+      'aku sedih nih... 😭',
+      'aku sedih nih... 😭',
+      'pencet tidak ya... 🙏',
+      'pencet tidak ya... 🙏',
+      'pencet tidak ya... 🙏',
+      'please sayang... 😭😭',
+      'please sayang... 😭😭',
+      'ya udah pencet tidak aja ya... 🥺',
+    ];
+
+    function updateCatState() {
+      const container = document.getElementById('cat-container');
+      container.classList.remove('tremble');
+
+      const bubble = document.getElementById('speech-bubble');
+      const idx = Math.min(dodgeCount, speechTexts.length - 1);
+      bubble.textContent = speechTexts[idx];
+
+      if (dodgeCount >= 1 && dodgeCount <= 2) {
+        addTears(1);
+        dimEars(1);
+      } else if (dodgeCount >= 3 && dodgeCount <= 4) {
+        addTears(2);
+        dimEars(2);
+      } else if (dodgeCount >= 5 && dodgeCount <= 7) {
+        addTears(3);
+        dimEars(2);
+        container.classList.add('tremble');
+      } else if (dodgeCount >= 8 && dodgeCount <= 9) {
+        addTears(4);
+        dimEars(2);
+        container.classList.add('tremble');
+      } else if (dodgeCount >= 10) {
+        addTears(4);
+        dimEars(2);
+        container.classList.add('tremble');
+      }
+
+      if (dodgeCount >= 1) {
+        container.classList.add('cat-sad');
+      }
+
+      const tidak = document.getElementById('btn-tidak');
+      if (dodgeCount >= 5) {
+        tidak.classList.remove('glow');
+        tidak.classList.add('glow-intense');
+      }
+    }
+
+    function addTears(level) {
+      // Clear previous tears first by restoring their original colors
+      document.querySelectorAll('.tear-pixel').forEach(el => {
+        if (el.dataset.origTearClass) {
+          el.className = el.dataset.origTearClass;
+        }
+      });
+
+      const grid = document.getElementById('pixel-cat');
+      const cells = grid.children;
+
+      const tearPositions = [];
+      if (level >= 1) {
+        tearPositions.push({r: 12, c: 10}, {r: 12, c: 15});
+      }
+      if (level >= 2) {
+        tearPositions.push({r: 13, c: 10}, {r: 13, c: 15});
+      }
+      if (level >= 3) {
+        tearPositions.push({r: 14, c: 10}, {r: 14, c: 15});
+      }
+      if (level >= 4) {
+        tearPositions.push({r: 12, c: 11}, {r: 12, c: 14});
+        tearPositions.push({r: 13, c: 11}, {r: 13, c: 14});
+      }
+
+      tearPositions.forEach(pos => {
+        const idx = pos.r * 24 + pos.c; // 24x24 grid width
+        if (cells[idx]) {
+          // Save original class if not already saved
+          if (!cells[idx].classList.contains('tear-pixel')) {
+            const origClass = cells[idx].className;
+            cells[idx].dataset.origTearClass = origClass;
+          }
+          cells[idx].className = 'px c-tear tear-pixel';
+        }
+      });
+    }
+
+    function dimEars(level) {
+      if (level >= 1) {
+        earTopPixels.forEach(p => {
+          if (p.row === 2) p.el.className = 'px c-clear';
+        });
+      }
+      if (level >= 2) {
+        earTopPixels.forEach(p => {
+          if (p.row <= 3) p.el.className = 'px c-clear';
+        });
+      }
+    }
+
+    function resetEars() {
+      earTopPixels.forEach(p => {
+        p.el.className = 'px ' + p.origClass;
+      });
+    }
+
+    function setEcstaticCat() {
+      const container = document.getElementById('cat-container');
+      container.classList.remove('cat-sad', 'tremble', 'bounce');
+      container.classList.add('cat-ecstatic');
+
+      resetEars();
+      document.querySelectorAll('.tear-pixel').forEach(el => {
+        if (el.dataset.origTearClass) el.className = el.dataset.origTearClass;
+      });
+
+      setEyeState('heart');
+
+      const bubble = document.getElementById('speech-bubble');
+      bubble.textContent = 'YAYY!! 🎉😻💕';
+      spawnCatSparkles();
+    }
+
+    // ============================================================
+    //  BLINKING
+    // ============================================================
+    function startBlink() {
+      if (blinkInterval) return;
+      blinkInterval = setInterval(() => {
+        if (isPetting || gamePhase === 'victory') return;
+        setEyeState('blink');
+        setTimeout(() => {
+          if (isPetting || gamePhase === 'victory') return;
+          setEyeState('default');
+        }, 150);
+      }, 3000);
+    }
+
+    function stopBlink() {
+      if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; }
+    }
+
+    // ============================================================
+    //  CAT PETTING
+    // ============================================================
+    function setupPetting() {
+      const cat = document.getElementById('cat-container');
+
+      const startPet = (e) => {
+        if (gamePhase === 'intro') return;
+        e.preventDefault();
+        isPetting = true;
+        initAudio();
+        startPurr();
+        playCuteChirp();
+        setEyeState('bliss');
+        spawnPetHeart(cat);
+      };
+
+      const endPet = () => {
+        isPetting = false;
+        stopPurr();
+        if (gamePhase === 'victory') {
+          setEyeState('heart');
+        } else {
+          setEyeState('default');
+        }
+      };
+
+      const movePet = (e) => {
+        if (!isPetting) return;
+        e.preventDefault();
+        if (Math.random() < 0.3) spawnPetHeart(cat);
+        if (Math.random() < 0.2) spawnMusicNote(cat);
+      };
+
+      cat.addEventListener('mousedown', startPet);
+      cat.addEventListener('touchstart', startPet, { passive: false });
+      document.addEventListener('mouseup', endPet);
+      document.addEventListener('touchend', endPet);
+      cat.addEventListener('mousemove', movePet);
+      cat.addEventListener('touchmove', movePet, { passive: false });
+    }
+
+    function spawnPetHeart(parent) {
+      const h = document.createElement('div');
+      h.className = 'pet-heart';
+      h.textContent = ['💕', '❤️', '💖'][Math.floor(Math.random() * 3)];
+      h.style.left = (20 + Math.random() * 60) + '%';
+      h.style.top = (10 + Math.random() * 60) + '%';
+      parent.appendChild(h);
+      setTimeout(() => h.remove(), 800);
+    }
+
+    function spawnMusicNote(parent) {
+      const n = document.createElement('div');
+      n.className = 'music-note';
+      n.textContent = '~♪';
+      n.style.left = (10 + Math.random() * 80) + '%';
+      n.style.top = (Math.random() * 40) + '%';
+      parent.appendChild(n);
+      setTimeout(() => n.remove(), 1000);
+    }
+
+    // ============================================================
+    //  AMBIENT EFFECTS
+    // ============================================================
+    function createFloatingHearts() {
+      const hearts = ['💕', '❤️', '💖', '💗', '♥'];
+      for (let i = 0; i < 12; i++) {
+        const h = document.createElement('div');
+        h.className = 'floating-heart';
+        h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        h.style.setProperty('--dur', (4 + Math.random() * 4) + 's');
+        h.style.setProperty('--opa', (0.3 + Math.random() * 0.4).toString());
+        h.style.setProperty('--size', (8 + Math.random() * 10) + 'px');
+        h.style.setProperty('--left', (Math.random() * 100) + '%');
+        h.style.fontSize = h.style.getPropertyValue('--size');
+        h.style.animationDelay = (Math.random() * 6) + 's';
+        document.body.appendChild(h);
+      }
+    }
+
+    function createTwinklingStars() {
+      for (let i = 0; i < 18; i++) {
+        const s = document.createElement('div');
+        s.className = 'twinkle-star';
+        const size = (2 + Math.random() * 5) + 'px';
+        s.style.setProperty('--size', size);
+        s.style.setProperty('--dur', (1.5 + Math.random() * 3) + 's');
+        s.style.setProperty('--delay', (Math.random() * 4) + 's');
+        s.style.setProperty('--top', (Math.random() * 90) + '%');
+        s.style.setProperty('--left', (Math.random() * 100) + '%');
+        s.style.setProperty('--color', Math.random() > 0.5 ? '#FFD700' : '#FFF');
+        document.body.appendChild(s);
+      }
+    }
+
+    function removeAmbient() {
+      document.querySelectorAll('.floating-heart, .twinkle-star').forEach(el => el.remove());
+    }
+
+    function createPawPrint(x, y, side) {
+      const p = document.createElement('div');
+      p.className = 'paw-print';
+      p.textContent = '🐾';
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      p.style.transform = side === 'left' ? 'rotate(-15deg)' : 'rotate(15deg)';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2500);
+    }
+
+    // ============================================================
+    //  BUTTON LOGIC
+    // ============================================================
+    function setupButtons() {
+      const ya = document.getElementById('btn-ya');
+      const tidak = document.getElementById('btn-tidak');
+
+      const dodgeYa = (e) => {
+        if (gamePhase !== 'playing') return;
+        e.preventDefault();
+        initAudio();
+
+        const rect = ya.getBoundingClientRect();
+        spawnSadEmoji(rect.left + rect.width / 2, rect.top);
+
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 200);
+
+        // Move to body to prevent parent transform inheritance context bugs
+        if (ya.parentNode !== document.body) {
+          ya.style.left = rect.left + 'px';
+          ya.style.top = rect.top + 'px';
+          document.body.appendChild(ya);
+        }
+
+        ya.classList.remove('slide-in');
+        ya.classList.add('dodging');
+
+        ya.style.transform = 'scale(0.8)';
+
+        const marginX = 80;
+        const marginY = 80;
+        const minX = marginX;
+        const maxX = window.innerWidth - marginX - ya.offsetWidth;
+        const minY = marginY;
+        const maxY = window.innerHeight - marginY - ya.offsetHeight;
+
+        const safeMaxX = Math.max(minX, maxX);
+        const safeMaxY = Math.max(minY, maxY);
+
+        const newX = minX + Math.random() * (safeMaxX - minX);
+        const newY = minY + Math.random() * (safeMaxY - minY);
+
+        setTimeout(() => {
+          ya.style.left = newX + 'px';
+          ya.style.top = newY + 'px';
+          ya.style.transform = 'scale(1.1)';
+          setTimeout(() => { ya.style.transform = 'scale(1)'; }, 100);
+        }, 50);
+
+        const pitch = Math.max(0.4, 1 - dodgeCount * 0.06);
+        playBoing(pitch);
+
+        dodgeCount++;
+        updateCatState();
+
+        if (dodgeCount >= 10) {
+          setTimeout(() => {
+            ya.classList.add('hidden');
+            playSadNotes();
+          }, 300);
+        }
+      };
+
+      ya.addEventListener('mouseover', dodgeYa);
+      ya.addEventListener('touchstart', dodgeYa, { passive: false });
+
+      tidak.addEventListener('click', () => {
+        if (gamePhase !== 'playing') return;
+        initAudio();
+        gamePhase = 'victory';
+        triggerVictory();
+      });
+      tidak.addEventListener('touchstart', (e) => {
+        if (gamePhase !== 'playing') return;
+        e.preventDefault();
+        initAudio();
+        gamePhase = 'victory';
+        triggerVictory();
+      }, { passive: false });
+    }
+
+    function spawnSadEmoji(x, y) {
+      const e = document.createElement('div');
+      e.className = 'sad-emoji-float';
+      e.textContent = '😢';
+      e.style.left = x + 'px';
+      e.style.top = y + 'px';
+      document.body.appendChild(e);
+      setTimeout(() => e.remove(), 800);
+    }
+
+    // ============================================================
+    //  VICTORY SEQUENCE
+    // ============================================================
+    function triggerVictory() {
+      stopBlink();
+      playMusicBox(); // Play the victory fanfare + loop instantly!
+
+      const flash = document.getElementById('white-flash');
+      flash.classList.add('flash');
+      setTimeout(() => flash.classList.remove('flash'), 250);
+
+      // Hide question + buttons inside the card
+      setTimeout(() => {
+        document.getElementById('question-text').style.display = 'none';
+        document.getElementById('button-container').style.display = 'none';
+        document.getElementById('speech-bubble').style.opacity = '0';
+      }, 200);
+
+      setTimeout(() => {
+        setEcstaticCat();
+      }, 300);
+
+      setTimeout(() => {
+        spawnEmojiExplosion();
+        playSparkle();
+      }, 500);
+
+      // Victory text typewriter inside card
+      setTimeout(() => {
+        const vt = document.getElementById('victory-text');
+        vt.style.display = 'block';
+        vt.style.opacity = '1';
+        typewriter(vt, 'yay sayang udah ga marah ❤️', 60, () => {
+          setTimeout(() => {
+            vt.innerHTML += '<br>';
+            typewriter(vt, 'love you sayangg 💕', 60, null, true);
+          }, 500);
+        });
+      }, 800);
+
+      setTimeout(() => {
+        spawnHeartRain();
+        playTone(880, 0.5, 'sine', 0.06);
+      }, 2000);
+
+      setTimeout(() => {
+        document.body.classList.add('victory-bg');
+        const bubble = document.getElementById('speech-bubble');
+        bubble.textContent = 'YAYY!! 🎉😻💕';
+        bubble.classList.add('visible');
+        bubble.style.opacity = '1';
+        playPop();
+      }, 2500);
+
+      // Personal message inside card
+      setTimeout(() => {
+        const pm = document.getElementById('personal-message');
+        pm.style.display = 'block';
+        setTimeout(() => {
+          pm.innerHTML = 'maafin aku ya sayang 🥺<br>aku ga mau kehilangan kamu<br>kamu segalanya buat aku 💕';
+          pm.style.opacity = '1';
+        }, 50);
+      }, 4000);
+
+      setTimeout(() => {
+        document.getElementById('replay-btn').classList.add('visible');
+      }, 8000);
+    }
+
+    function typewriter(el, text, speed, callback, append = false) {
+      let i = 0;
+      const base = append ? el.innerHTML : '';
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          el.innerHTML = base + text.substring(0, i + 1);
+          if (audioCtx && Math.random() > 0.5) playKeyClick();
+          i++;
+        } else {
+          clearInterval(interval);
+          if (callback) callback();
+        }
+      }, speed);
+    }
+
+    function spawnEmojiExplosion() {
+      const emojis = ['🎉', '🥳', '💕', '💖', '✨', '🎊', '😻'];
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      for (let i = 0; i < 20; i++) {
+        const e = document.createElement('div');
+        e.className = 'emoji-burst';
+        e.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        const angle = (Math.PI * 2 / 20) * i;
+        const dist = 100 + Math.random() * 150;
+        e.style.left = cx + 'px';
+        e.style.top = cy + 'px';
+        e.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        e.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        e.style.animationDelay = (Math.random() * 0.3) + 's';
+        document.body.appendChild(e);
+        setTimeout(() => e.remove(), 1500);
+      }
+    }
+
+    function spawnHeartRain() {
+      const hearts = ['❤️', '💕', '💖', '💗'];
+      for (let i = 0; i < 40; i++) {
+        const h = document.createElement('div');
+        h.className = 'heart-rain';
+        h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        h.style.setProperty('--dur', (2 + Math.random() * 3) + 's');
+        h.style.setProperty('--size', (14 + Math.random() * 16) + 'px');
+        h.style.setProperty('--left', (Math.random() * 100) + '%');
+        h.style.setProperty('--delay', (Math.random() * 3) + 's');
+        h.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+        h.style.fontSize = h.style.getPropertyValue('--size');
+        document.body.appendChild(h);
+      }
+    }
+
+    function spawnCatSparkles() {
+      const cat = document.getElementById('cat-container');
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          const s = document.createElement('div');
+          s.className = 'sparkle';
+          s.style.setProperty('--sx', (Math.random() * 40 - 20) + 'px');
+          s.style.setProperty('--sy', (Math.random() * 40 - 20) + 'px');
+          s.style.setProperty('--sx2', (Math.random() * 60 - 30) + 'px');
+          s.style.setProperty('--sy2', (Math.random() * 60 - 30) + 'px');
+          s.style.left = (Math.random() * 100) + '%';
+          s.style.top = (Math.random() * 100) + '%';
+          cat.appendChild(s);
+          setTimeout(() => s.remove(), 600);
+          playSparkle();
+        }, i * 200);
+      }
+    }
+
+    // ============================================================
+    //  REPLAY
+    // ============================================================
+    function setupReplay() {
+      document.getElementById('replay-btn').addEventListener('click', () => {
+        dodgeCount = 0;
+        gamePhase = 'intro';
+        isPetting = false;
+        stopBlink();
+        stopPurr();
+        stopMusicBox();
+
+        document.querySelectorAll('.floating-heart, .twinkle-star, .heart-rain, .paw-print, .emoji-burst, .sad-emoji-float, .sparkle, .pet-heart, .music-note').forEach(el => el.remove());
+
+        document.body.classList.remove('victory-bg', 'shake');
+        const container = document.getElementById('cat-container');
+        container.className = '';
+        container.style.transform = 'translateY(100vh)';
+
+        document.getElementById('main-content').classList.remove('visible');
+
+        document.getElementById('question-text').style.display = '';
+        document.getElementById('question-text').style.opacity = '';
+        document.getElementById('question-text').classList.remove('visible');
+
+        document.getElementById('victory-text').style.display = 'none';
+        document.getElementById('victory-text').style.opacity = '0';
+        document.getElementById('victory-text').textContent = '';
+
+        document.getElementById('button-container').style.display = '';
+        document.getElementById('button-container').style.opacity = '';
+        document.getElementById('button-container').style.pointerEvents = '';
+
+        const yaWrapper = document.getElementById('ya-wrapper');
+        const ya = document.getElementById('btn-ya');
+        if (ya.parentNode !== yaWrapper) {
+          yaWrapper.appendChild(ya);
+        }
+        ya.className = 'btn';
+        ya.style.left = '';
+        ya.style.top = '';
+        ya.style.transform = 'translateX(-100vw)';
+
+        const tidak = document.getElementById('btn-tidak');
+        tidak.className = 'btn';
+        tidak.style.transform = 'translateX(60vw)';
+
+        document.getElementById('speech-bubble').className = '';
+        document.getElementById('speech-bubble').style.opacity = '';
+        document.getElementById('speech-bubble').textContent = 'jangan marah dong... 🥺';
+
+        document.getElementById('personal-message').style.display = 'none';
+        document.getElementById('personal-message').style.opacity = '0';
+        document.getElementById('personal-message').innerHTML = '';
+
+        document.getElementById('replay-btn').className = '';
+
+        const overlay = document.getElementById('intro-overlay');
+        overlay.style.opacity = '1';
+        overlay.classList.remove('fade-out');
+        overlay.style.display = 'flex';
+        document.getElementById('intro-typed').textContent = '';
+
+        buildCat();
+        setTimeout(() => runIntro(), 300);
+      });
+    }
+
+    // ============================================================
+    //  INTRO SEQUENCE
+    // ============================================================
+    function runIntro() {
+      gamePhase = 'intro';
+      const overlay = document.getElementById('intro-overlay');
+      overlay.style.display = 'flex';
+      const typedEl = document.getElementById('intro-typed');
+      const text = 'hai sayang...';
+
+      setTimeout(() => {
+        let i = 0;
+        const typeInt = setInterval(() => {
+          if (i < text.length) {
+            typedEl.textContent += text[i];
+            playKeyClick();
+            i++;
+          } else {
+            clearInterval(typeInt);
+          }
+        }, 80);
+      }, 500);
+
+      setTimeout(() => {
+        overlay.classList.add('fade-out');
+        playChime();
+      }, 2000);
+
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        document.getElementById('main-content').classList.add('visible');
+
+        const cat = document.getElementById('cat-container');
+        cat.style.transform = '';
+        cat.classList.add('walk-in');
+
+        const catRect = cat.getBoundingClientRect();
+        const cx = catRect.left + catRect.width / 2;
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            const py = window.innerHeight - 40 - i * 35;
+            createPawPrint(cx + (i % 2 === 0 ? -10 : 10), py, i % 2 === 0 ? 'left' : 'right');
+            playFootstep();
+          }, i * 180);
+        }
+      }, 2500);
+
+      setTimeout(() => {
+        const cat = document.getElementById('cat-container');
+        cat.classList.add('bounce');
+        startBlink();
+      }, 3500);
+
+      setTimeout(() => {
+        document.getElementById('question-text').classList.add('visible');
+      }, 3800);
+
+      setTimeout(() => {
+        const ya = document.getElementById('btn-ya');
+        const tidak = document.getElementById('btn-tidak');
+        ya.style.transform = '';
+        tidak.style.transform = '';
+        ya.classList.add('slide-in');
+        tidak.classList.add('slide-in');
+        tidak.classList.add('glow');
+        playPop();
+        gamePhase = 'playing';
+      }, 4000);
+
+      setTimeout(() => {
+        document.getElementById('speech-bubble').classList.add('visible');
+        playPop();
+      }, 4300);
+
+      setTimeout(() => {
+        createFloatingHearts();
+        createTwinklingStars();
+      }, 4500);
+    }
+
+    // ============================================================
+    //  INIT AUDIO ON FIRST INTERACTION
+    // ============================================================
+    function globalAudioInit() {
+      initAudio();
+      document.removeEventListener('click', globalAudioInit);
+      document.removeEventListener('touchstart', globalAudioInit);
+    }
+    document.addEventListener('click', globalAudioInit);
+    document.addEventListener('touchstart', globalAudioInit);
+
+    // ============================================================
+    //  BOOT
+    // ============================================================
+    buildCat();
+    setupButtons();
+    setupPetting();
+    setupReplay();
+    runIntro();
+  </script>
+</body>
+</html>
